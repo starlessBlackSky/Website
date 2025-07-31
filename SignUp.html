@@ -61,7 +61,7 @@
         <br><br>
         <button onclick="window.location.href='SignUp.html'">Don't have an account yet? Create one today</button>
     </div>
-    
+
     <div class = "container">
         <h2>Create Your Account:</h2>
         <form> 
@@ -86,5 +86,38 @@
 
         </form>
     </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', async function(e) {            
+            e.preventDefault();
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+            try {
+            const res = await fetch('http://localhost:5000/api/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ firstName, lastName, email, username, password })
+        });
+
+            const data = await res.json();
+                if (res.ok) {
+                    alert('Account created! You can now sign in.');
+                    window.location.href = 'LogIn.html'; 
+                } else {
+                    alert(data.message);
+        }
+    } catch (err) {
+        alert('Error connecting to server.');
+    }
+});
+    </script>
 </body>
 </html>
