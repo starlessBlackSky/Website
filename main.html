@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
     <meta charset="UTF-8">
     <title>Authors for Authors</title>
     <style>
         body {
             background-color: #ffe4ec;
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Open Sans', sans-serif;
         }
         h1 {
             text-align: center;
             color: #b30059;
             margin: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            margin-top: 20px;
+        }
+        p{
+            text-align: center;
+            color: #4d004d;
+            font-size: 1.2em;
+            margin: 10px 0 20px 0;
+            font-family: 'Open Sans', sans-serif;
         }
         .container {
             max-width: 400px;
@@ -21,6 +33,11 @@
             padding: 24px 32px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(179,0,89,0.08);
+            transition: all 0.3s ease-in-out;
+        }
+        .container:hover {
+            transform: scale(1.01);
+
         }
         label {
             display: block;
@@ -68,6 +85,13 @@
             color: #4d004d;
             border-left: 3px solid #b30059;
         }
+        .comment::before {
+            content: "🖋";
+            position: absolute;
+            left: -25px;
+            top: 10px;
+            color: #b30059;
+        }
         .comment-form {
             display: flex;
             gap: 6px; 
@@ -92,11 +116,24 @@
         .comment-form button:hover {
             background: #99004d;
         }
+        .like-button {
+            background: transparent;
+            color: #b30059;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 6px;
+        }
+        .like-button:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
 
-    <h1>Authors for Authors</h1>
+    <h1>Author's Camp</h1>
     <p style="text-align: center; color: #4d004d;">A platform for authors to connect and collaborate.</p>
     <div class="container">
         <form id="postForm">
@@ -108,6 +145,11 @@
         </form>
         <div id="posts"></div>
     </div>
+
+    <img src="https://i.pinimg.com/736x/dc/99/59/dc9959be725c5ec4c48dac2dcbc2a1b0.jpg" 
+     alt="Writing Banner" 
+     style="width:100%; height:200px; object-fit:cover; border-bottom: 4px solid #b30059;">
+"
 
     <script>
         const form = document.getElementById('postForm');
@@ -140,26 +182,46 @@
 
 
     form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('name').value.trim();
-        const message = document.getElementById('message').value.trim();
-        if (name && message) {
-            const post = document.createElement('div');
-            post.className = 'post';
-            const now = new Date();
-            const dateString = now.toLocaleString();
-            post.innerHTML = `
-                <strong>${name}</strong><br>${message}<br>
-                <span style="font-size:0.9em;color:#888;">${dateString}</span>
-                <div class="comments" style="margin-top:12px;"></div>
-            `;
-            post.appendChild(createCommentForm(post));
-            postsDiv.prepend(post);
-            form.reset();
-        }
-    });
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const message = document.getElementById('message').value.trim();
+    if (name && message) {
+        const post = document.createElement('div');
+        post.className = 'post';
+        const now = new Date();
+        const dateString = now.toLocaleString();
+        post.innerHTML = `
+            <strong>${name}</strong><br>${message}<br>
+            <span style="font-size:0.9em;color:#888;">${dateString}</span>
+            <div style="margin-top:10px;">
+                <button class="like-button" data-liked="false">❤️ Like</button>
+                <span class="like-count">0</span>
+            </div>
+            <div class="comments" style="margin-top: 12px;"></div>
+        `;
+        const likeButton = post.querySelector('.like-button');
+        const likeCount = post.querySelector('.like-count');
+
+        likeButton.addEventListener('click', function () {
+            const liked = likeButton.getAttribute('data-liked') === 'true';
+            if (!liked) {
+                let count = parseInt(likeCount.textContent.trim()) || 0;
+                likeCount.textContent = count + 1;
+                likeButton.setAttribute('data-liked', 'true');
+                likeButton.style.color = 'red';
+                likeButton.textContent = '❤️ Liked';
+            }
+        });
+
+        post.appendChild(createCommentForm(post));
+        postsDiv.prepend(post);
+        form.reset();
+    }
+});
+
+        feather.replace();
     
     </script>
+
 </body>
 </html>
-
