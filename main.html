@@ -187,11 +187,54 @@
         return commentForm;
     }
 
+        function addCommentToPage(comment) {
+            const commentSection = document.createElement('comments');
+            const commentDiv = document.createElement('div');
+            commentDiv.classList.add('comment');
+            commentDiv.innertext = comment;
+            commentSection.appendChild(commentDiv);
+        }
 
+        function submitComment() {
+            const commentInput = document.getElementById('commentInput');
+            const comment = commentInput.value.trim();
+                if (comment) {
+                fetch('/comment', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ comment })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                    addCommentToPage(comment);
+                    commentInput.value = '';
+                    } else {
+                    alert('Failed to save comment.');
+                    }
+                });
+            }
+        }
+
+        window.onload = function() {
+            fetch('/comments')
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(comment => {
+                addCommentToPage(comment);
+                });
+            });
+        };
+
+
+    
     form.addEventListener('submit', function(e) {
     e.preventDefault();
     const name = document.getElementById('name').value.trim();
     const message = document.getElementById('message').value.trim();
+ 
     if (name && message) {
         const post = document.createElement('div');
         post.className = 'post';
@@ -226,11 +269,9 @@
     }
 });
 
-        feather.replace();
-
-        function renderPosts() {
-    postsDiv.innerHTML = '';
-    posts.forEach((data, index) => {
+    function renderPosts() {
+        postsDiv.innerHTML = '';
+        posts.forEach((data, index) => {
         const post = document.createElement('div');
         post.className = 'post';
 
@@ -297,6 +338,8 @@
         postsDiv.appendChild(post);
     });
 }
+        feather.replace();
+        renderPosts();
     
     </script>
 
