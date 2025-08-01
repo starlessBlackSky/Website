@@ -154,6 +154,13 @@
     <script>
         const form = document.getElementById('postForm');
         const postsDiv = document.getElementById('posts');
+
+        let posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+        function savePosts() {
+            localStorage.setItem('posts', JSON.stringify(posts));
+        }
+
         function createCommentForm(postDiv) {
         const commentForm = document.createElement('form');
         commentForm.className = 'comment-form';
@@ -221,7 +228,47 @@
 
         feather.replace();
 
-    function createCommentForm(postDiv) {
+        function renderPosts() {
+    postsDiv.innerHTML = '';
+    posts.forEach((data, index) => {
+        const post = document.createElement('div');
+        post.className = 'post';
+
+        const now = new Date(data.timestamp || new Date());
+        const dateString = now.toLocaleString();
+
+        post.innerHTML = `
+            <strong>${data.name}</strong><br>${data.message}<br>
+            <span style="font-size:0.9em;color:#888;">${dateString}</span>
+            <div style="margin-top:10px;">
+                <button class="like-button" data-liked="false">❤️ Like</button>
+                <span class="like-count">${data.likes || 0}</span>
+            </div>
+            <div class="comments" style="margin-top: 12px;"></div>
+        `;
+
+        const likeButton = post.querySelector('.like-button');
+        const likeCount = post.querySelector('.like-count');
+        likeButton.addEventListener('click', function () {
+            if (likeButton.getAttribute('data-liked') === 'false') {
+                data.likes = (data.likes || 0) + 1;
+                likeCount.textContent = data.likes;
+                likeButton.setAttribute('data-liked', 'true');
+                likeButton.style.color = 'red';
+                likeButton.textContent = '❤️ Liked';
+                savePosts();
+            }
+        });
+
+        const commentsDiv = post.querySelector('.comments');
+        data.comments?.forEach(c => {
+            const comment = document.createElement('div');
+            comment.className = 'comment';
+            comment.innerHTML = `<strong>${c.name}</strong>: ${c.message}
+                <span style="font-size:0.85em;color:#888;"> (${new Date(c.timestamp).toLocaleString()})</span>`;
+            commentsDiv.appendChild(comment);
+        });
+
         const commentForm = document.createElement('form');
         commentForm.className = 'comment-form';
         commentForm.innerHTML = `
@@ -234,62 +281,23 @@
             const name = commentForm.querySelector('.comment-name').value.trim();
             const message = commentForm.querySelector('.comment-message').value.trim();
             if (name && message) {
-                const now = new Date();
-                const dateString = now.toLocaleString();
-                const commentDiv = document.createElement('div');
-                commentDiv.className = 'comment';
-                commentDiv.innerHTML = `<strong>${name}</strong>: ${message}
-                    <span style="font-size:0.85em;color:#888;"> (${dateString})</span>`;
-                postDiv.querySelector('.comments').appendChild(commentDiv);
-                commentForm.reset();
+                const newComment = {
+                    name,
+                    message,
+                    timestamp: new Date().toISOString()
+                };
+                data.comments = data.comments || [];
+                data.comments.push(newComment);
+                savePosts();
+                renderPosts();
             }
         });
-        return commentForm;
-    }
 
-    function loadPostsFromLocalStorage() {
-        const posts = JSON.parse(localStorage.getItem('authorPosts') || '[]');
-        posts.forEach(postData => {
-            const post = document.createElement('div');
-            post.className = 'post';
-            post.innerHTML = `
-                <strong>${p.name}</strong><br>${p.message}<br>
-                <span style="font-size:0.9em;color:#888;">${p.date}</span>
-                <div style="margin-top:10px;">
-                    `;
-                post.appendChild(createCommentForm(post));
-                postDiv.appendChild(post);
-        });
-
-    }
+        post.appendChild(commentForm);
+        postsDiv.appendChild(post);
+    });
+}
     
-    loadPostsFromLocalStorage();
-
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-            const name = document.getElementById('name').value.trim();
-            const message = document.getElementById('message').value.trim();
-        if (name && message) {
-            const now = new Date();
-            const dateString = now.toLocaleString();
-
-            const post = document.createElement('div');
-            post.className = 'post';
-            post.innerHTML = `
-                <strong>${name}</strong><br>${message}<br>
-                <span style="font-size:0.9em;color:#888;">${dateString}</span>
-                <div class="comments" style="margin-top:12px;"></div>
-                `;
-                post.appendChild(createCommentForm(post));
-                postsDiv.prepend(post);
-
-            const existingPosts = JSON.parse(localStorage.getItem('authorPosts') || '[]');
-            existingPosts.unshift({ name, message, date: dateString });
-            savePostsToLocalStorage(existingPosts);
-
-            form.reset();
-    }
-});
     </script>
 
 </body>
